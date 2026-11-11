@@ -1,0 +1,27 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: nebula
+      POSTGRES_PASSWORD: nebula
+      POSTGRES_DB: nebuladb
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nebula"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    environment:
+      DB_DRIVER: postgres
+      POSTGRES_DSN: "host=db user=nebula password=nebula dbname=nebuladb sslmode=disable"
+      PORT: "8080"
+    ports:
+      - 8080:8080
+    depends_on:
+      db:
+        condition: service_healthy
